@@ -1,0 +1,27 @@
+services:
+  utils-manager:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: utils-manager
+    ports:
+      - "3002:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+
+  user-db-indexer:
+    build:
+      context: ../user-db-indexer
+      dockerfile: Dockerfile
+    container_name: user-db-indexer
+    ports:
+      - "3001:8000"
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      UTILS_LOGIN_URL: http://localhost:3002/login
+      UTILS_VERIFY_URL: http://utils-manager:3000/auth/verify
+      INTERNAL_AUTH_SECRET: ${INTERNAL_AUTH_SECRET}
+    restart: unless-stopped
